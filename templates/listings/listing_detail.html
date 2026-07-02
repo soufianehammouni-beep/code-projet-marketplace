@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="listing-detail">
+    <div class="listing-images">
+        {% if listing.photos.all %}
+            <div class="main-image">
+                <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+            </div>
+            {% if listing.photos.count > 1 %}
+                <div class="image-thumbnails">
+                    {% for photo in listing.photos.all %}
+                        <img src="{{ photo.image.url }}" alt="{{ listing.title }}">
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-image large">Pas de photo</div>
+        {% endif %}
+    </div>
+
+    <div class="listing-info">
+        <h1>{{ listing.title }}</h1>
+        <p class="price-large">{{ listing.price }} €</p>
+        <p class="status status-{{ listing.status }}">{{ listing.get_status_display }}</p>
+        
+        <div class="listing-meta">
+            <p><strong>Catégorie:</strong> {{ listing.category.name }}</p>
+            <p><strong>Ville:</strong> {{ listing.city }}</p>
+            <p><strong>Publié le:</strong> {{ listing.created_at|date:"d/m/Y" }}</p>
+            <p><strong>Vendeur:</strong> <a href="{% url 'user_profile' listing.seller.username %}">{{ listing.seller.get_full_name|default:listing.seller.username }}</a></p>
+        </div>
+
+        <div class="listing-description">
+            <h2>Description</h2>
+            <p>{{ listing.description|linebreaks }}</p>
+        </div>
+
+        <div class="listing-actions">
+            {% if user == listing.seller %}
+                <a href="{% url 'listing_update' listing.pk %}" class="btn btn-secondary">Modifier</a>
+                {% if listing.status == 'active' %}
+                    <a href="{% url 'mark_sold' listing.pk %}" class="btn btn-primary">Marquer comme vendu</a>
+                {% endif %}
+                <a href="{% url 'listing_delete' listing.pk %}" class="btn btn-danger">Supprimer</a>
+            {% else %}
+                {% if listing.status == 'active' %}
+                    <a href="{% url 'start_conversation' listing.pk %}" class="btn btn-primary">Contacter le vendeur</a>
+                {% endif %}
+                {% if listing.status == 'sold' %}
+                    <a href="{% url 'create_review' listing.pk %}" class="btn btn-secondary">Laisser un avis</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if listing.reviews.exists %}
+            <div class="listing-reviews">
+                <h2>Avis</h2>
+                {% for review in listing.reviews.all %}
+                    <div class="review">
+                        <div class="review-header">
+                            <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</strong>
+                            <span class="rating">{{ review.rating }}/5</span>
+                        </div>
+                        <p>{{ review.comment }}</p>
+                        <small>{{ review.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if related_listings %}
+<section>
+    <h2>Annonces similaires</h2>
+    <div class="listings-grid">
+        {% for related in related_listings %}
+            <div class="listing-card">
+                <a href="{% url 'listing_detail' related.pk %}">
+                    {% if related.photos.first %}
+                        <img src="{{ related.photos.first.image.url }}" alt="{{ related.title }}">
+                    {% else %}
+                        <div class="no-image">Pas de photo</div>
+                    {% endif %}
+                    <div class="listing-info">
+                        <h3>{{ related.title }}</h3>
+                        <p class="price">{{ related.price }} €</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+

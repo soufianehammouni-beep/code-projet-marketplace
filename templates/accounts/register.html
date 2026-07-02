@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription - Marketplace{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h1>Inscription</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            {{ form.password1.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            {{ form.password2.errors }}
+        </div>
+        <div class="form-group">
+            <label>{{ form.role.label }}</label>
+            <div class="role-choices">
+                {% for choice in form.role %}
+                    <div class="role-option">
+                        {{ choice.tag }}
+                        <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            {{ form.role.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+    </form>
+    <p>Déjà un compte ? <a href="{% url 'login' %}">Connectez-vous</a></p>
+</div>
+{% endblock %}

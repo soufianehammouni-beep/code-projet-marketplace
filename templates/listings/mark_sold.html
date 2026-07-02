@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Marquer comme vendu - {{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <h1>Marquer comme vendu</h1>
+    <p>Annonce : <strong>{{ listing.title }}</strong></p>
+    <p>Prix : <strong>{{ listing.price }} €</strong></p>
+    
+    {% if conversations %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="buyer">Sélectionner l'acheteur :</label>
+                <select name="buyer" id="buyer" class="form-control">
+                    <option value="">-- Acheteur non spécifié --</option>
+                    {% for conv in conversations %}
+                        <option value="{{ conv.pk }}">{{ conv.buyer.username }} (conversation du {{ conv.created_at|date:"d/m/Y" }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Confirmer la vente</button>
+            <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    {% else %}
+        <p class="empty">Aucune conversation trouvée pour cette annonce.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Marquer comme vendu sans acheteur</button>
+            <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

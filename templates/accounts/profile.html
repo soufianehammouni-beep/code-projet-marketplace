@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ profile_user.get_full_name|default:profile_user.username }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="profile">
+    <div class="profile-header">
+        {% if profile_user.profile.photo %}
+            <img src="{{ profile_user.profile.photo.url }}" alt="Photo de profil" class="profile-photo">
+        {% else %}
+            <div class="profile-photo default">Pas de photo</div>
+        {% endif %}
+        <div class="profile-info">
+            <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+            <p>Inscrit le {{ profile_user.date_joined|date:"d/m/Y" }}</p>
+            <p>Email: {{ profile_user.email }}</p>
+            <p>Téléphone: {{ profile_user.profile.phone|default:"Non renseigné" }}</p>
+            <p>Ville: {{ profile_user.profile.city|default:"Non renseignée" }}</p>
+            {% if avg_rating %}
+                <p>Note moyenne: {{ avg_rating|floatformat:1 }}/5</p>
+            {% endif %}
+        </div>
+
+    {% if user == profile_user %}
+        <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Modifier le profil</a>
+    {% endif %}
+    
+    <a href="{% url 'user_reviews' profile_user.username %}" class="btn btn-secondary">Voir les avis</a>
+
+    <section>
+        <h2>Annonces de {{ profile_user.get_full_name|default:profile_user.username }}</h2>
+        <div class="listings-grid">
+            {% for listing in listings %}
+                <div class="listing-card">
+                    <a href="{% url 'listing_detail' listing.pk %}">
+                        {% if listing.photos.first %}
+                            <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+                        {% else %}
+                            <div class="no-image">Pas de photo</div>
+                        {% endif %}
+                        <div class="listing-info">
+                            <h3>{{ listing.title }}</h3>
+                            <p class="price">{{ listing.price }} €</p>
+                        </div>
+                    </a>
+                </div>
+            {% empty %}
+                <p>Aucune annonce publiée.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

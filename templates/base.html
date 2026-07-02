@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Marketplace{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="{% url 'home' %}" class="logo">Marketplace</a>
+            <ul class="nav-links">
+                {% if not user.is_authenticated or user.profile.role != 'admin' %}
+                    <li><a href="{% url 'listing_list' %}">Annonces</a></li>
+                {% endif %}
+                {% if user.is_authenticated %}
+
+                    <li><a href="{% url 'inbox' %}">Messages {% if unread_messages_count %}<span class="badge badge-danger">{{ unread_messages_count }}</span>{% endif %}</a></li>
+                    
+                    <!-- Menu basé sur le rôle -->
+                    {% if user.profile.role == 'buyer' %}
+                        <li><a href="{% url 'buyer_dashboard' %}">🛒 Espace Acheteur</a></li>
+                    {% elif user.profile.role == 'seller' %}
+                        <li><a href="{% url 'seller_dashboard' %}">🏪 Espace Vendeur</a></li>
+                        <li><a href="{% url 'listing_create' %}">Publier</a></li>
+                    {% elif user.profile.role == 'admin' %}
+                        <li><a href="{% url 'admin_dashboard' %}">⚙️ Panel Admin</a></li>
+                    {% endif %}
+
+                    
+                    <li><a href="{% url 'profile' %}">Profil</a></li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:none;border:none;padding:0;color:white;cursor:pointer;font:inherit;">Déconnexion</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Connexion</a></li>
+                    <li><a href="{% url 'register' %}">Inscription</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p> 2024 Marketplace - Tous droits réservés</p>
+        </div>
+    </footer>
+</body>
+</html>

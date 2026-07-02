@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - Marketplace{% endblock %}
+
+{% block content %}
+<h1>Boîte de réception</h1>
+
+<div class="conversations-list">
+    {% for conversation in conversations %}
+        <a href="{% url 'conversation_detail' conversation.pk %}" class="conversation-item {% if conversation.unread_count and conversation.last_sender != user %}unread{% endif %}">
+            <div class="conversation-info">
+                {% if conversation.listing.photos.first %}
+                    <img src="{{ conversation.listing.photos.first.image.url }}" alt="" class="conversation-thumb">
+                {% endif %}
+                <div>
+                    <h3>
+                        {% if conversation.buyer == user %}
+                            Conversation avec {{ conversation.seller.get_full_name|default:conversation.seller.username }}
+                        {% else %}
+                            Conversation avec {{ conversation.buyer.get_full_name|default:conversation.buyer.username }}
+                        {% endif %}
+                        {% if conversation.unread_count and conversation.last_sender != user %}
+                            <span class="badge badge-new">{{ conversation.unread_count }} nouveau{% if conversation.unread_count > 1 %}x{% endif %}</span>
+                        {% endif %}
+                    </h3>
+                    <p class="listing-title">Re: {{ conversation.listing.title }}</p>
+                    {% if conversation.messages.last %}
+                        <p class="last-message">{{ conversation.messages.last.content|truncatechars:50 }}</p>
+                    {% endif %}
+                </div>
+            <span class="conversation-date">{{ conversation.updated_at|date:"d/m/Y H:i" }}</span>
+        </a>
+    {% empty %}
+        <div class="empty-state">
+            <p>Aucune conversation.</p>
+            <p>Allez consulter une annonce pour contacter un vendeur !</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

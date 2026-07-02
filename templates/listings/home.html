@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - Marketplace{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Bienvenue sur Marketplace</h1>
+    <p>Achetez et vendez en toute simplicité</p>
+    <a href="{% url 'listing_list' %}" class="btn btn-primary">Voir les annonces</a>
+</div>
+
+<section>
+    <h2>Dernières annonces</h2>
+    <div class="listings-grid">
+        {% for listing in listings %}
+            <div class="listing-card">
+                <a href="{% url 'listing_detail' listing.pk %}">
+                    {% if listing.photos.first %}
+                        <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+                    {% else %}
+                        <div class="no-image">Pas de photo</div>
+                    {% endif %}
+                    <div class="listing-info">
+                        <h3>{{ listing.title }}</h3>
+                        <p class="price">{{ listing.price }} €</p>
+                        <p class="location">{{ listing.city }}</p>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p>Aucune annonce disponible.</p>
+        {% endfor %}
+    </div>
+    <div class="text-center">
+        <a href="{% url 'listing_list' %}" class="btn btn-secondary">Voir toutes les annonces</a>
+    </div>
+</section>
+
+<section>
+    <h2>Catégories</h2>
+    <div class="categories-grid">
+        {% for category in categories %}
+            <a href="{% url 'listing_list' %}?category={{ category.pk }}" class="category-card">
+                {{ category.name }}
+            </a>
+        {% empty %}
+            <p>Aucune catégorie.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+

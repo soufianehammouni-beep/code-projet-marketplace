@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Laisser un avis - Marketplace{% endblock %}
+
+{% block content %}
+<h1>Laisser un avis</h1>
+<p>Pour l'annonce: <strong>{{ listing.title }}</strong></p>
+
+<form method="post" class="form">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.rating.label_tag }}
+        {{ form.rating }}
+        {{ form.rating.errors }}
+    </div>
+    <div class="form-group">
+        {{ form.comment.label_tag }}
+        {{ form.comment }}
+        {{ form.comment.errors }}
+    </div>
+    <button type="submit" class="btn btn-primary">Publier l'avis</button>
+    <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Avis sur {{ reviewed_user.get_full_name|default:reviewed_user.username }} - Marketplace{% endblock %}
+
+{% block content %}
+<h1>Avis sur {{ reviewed_user.get_full_name|default:reviewed_user.username }}</h1>
+
+{% if avg_rating %}
+    <p class="avg-rating">Note moyenne: {{ avg_rating|floatformat:1 }}/5</p>
+{% endif %}
+
+<div class="reviews-list">
+    {% for review in reviews %}
+        <div class="review">
+            <div class="review-header">
+                <strong>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</strong>
+                <span class="rating">{{ review.rating }}/5</span>
+            </div>
+            <p>{{ review.comment }}</p>
+            <small>Sur: <a href="{% url 'listing_detail' review.listing.pk %}">{{ review.listing.title }}</a> - {{ review.created_at|date:"d/m/Y" }}</small>
+        </div>
+    {% empty %}
+        <p>Aucun avis pour le moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

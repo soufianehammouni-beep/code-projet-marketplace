@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Marketplace{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="post" enctype="multipart/form-data" class="form">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        {{ form.title.label_tag }}
+        {{ form.title }}
+        {{ form.title.errors }}
+    </div>
+    
+    <div class="form-group">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+        {{ form.description.errors }}
+    </div>
+    
+    <div class="form-group">
+        {{ form.price.label_tag }}
+        {{ form.price }}
+        {{ form.price.errors }}
+    </div>
+    
+    <div class="form-group">
+        {{ form.category.label_tag }}
+        {{ form.category }}
+        {{ form.category.errors }}
+    </div>
+    
+    <div class="form-group">
+        {{ form.city.label_tag }}
+        {{ form.city }}
+        {{ form.city.errors }}
+    </div>
+    
+    <div class="form-group">
+        <label for="photos">Photos</label>
+        <input type="file" name="photos" id="photos" multiple accept="image/*">
+    </div>
+    
+    {% if listing and listing.photos.exists %}
+        <div class="current-photos">
+            <h3>Photos actuelles</h3>
+            <div class="photo-grid">
+                {% for photo in listing.photos.all %}
+                    <div class="photo-item">
+                        <img src="{{ photo.image.url }}" alt="Photo">
+                        <a href="{% url 'delete_photo' photo.pk %}" class="btn btn-danger btn-small">Supprimer</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{% url 'listing_list' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
+

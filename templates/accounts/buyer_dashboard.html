@@ -1,0 +1,87 @@
+ sui admin ou vendeur ou achteur{% extends 'base.html' %}
+
+{% block title %}Espace Acheteur - Marketplace{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Espace Acheteur</h1>
+    <p>Vos achats, conversations et avis</p>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Purchases -->
+    <div class="dashboard-section">
+        <h2>Mes achats</h2>
+        {% if purchases %}
+            <div class="listings-grid small">
+                {% for listing in purchases %}
+                    <div class="listing-card">
+                        <a href="{% url 'listing_detail' listing.pk %}">
+                            {% if listing.photos.first %}
+                                <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+                            {% else %}
+                                <div class="no-image">Pas de photo</div>
+                            {% endif %}
+                            <div class="listing-info">
+                                <h3>{{ listing.title }}</h3>
+                                <p class="price">{{ listing.price }} €</p>
+                                <p class="location">{{ listing.city }}</p>
+                                <p>Vendeur : {{ listing.seller.username }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Vous n'avez pas encore effectué d'achat.</p>
+        {% endif %}
+    </div>
+
+    <!-- Conversations -->
+    <div class="dashboard-section">
+        <h2>Mes conversations</h2>
+        {% if conversations %}
+            <div class="conversations-list">
+                {% for conv in conversations %}
+                    <a href="{% url 'conversation_detail' conv.pk %}" class="conversation-item">
+                        <div class="conversation-info">
+                            {% if conv.listing.photos.first %}
+                                <img src="{{ conv.listing.photos.first.image.url }}" class="conversation-thumb" alt="">
+                            {% else %}
+                                <div class="conversation-thumb no-image"></div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ conv.listing.title }}</strong>
+                                <p class="last-message">Avec {{ conv.seller.username }}</p>
+                            </div>
+                        </div>
+                        <span class="date">{{ conv.updated_at|date:"d/m/Y" }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Aucune conversation.</p>
+        {% endif %}
+    </div>
+
+    <!-- Reviews Given -->
+    <div class="dashboard-section">
+        <h2>Avis donnés</h2>
+        {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <div class="review">
+                        <div class="review-header">
+                            <strong>Pour {{ review.reviewed.username }}</strong>
+                            <span class="rating">{{ review.rating }}/5</span>
+                        </div>
+                        <p>{{ review.comment }}</p>
+                        <small>{{ review.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Vous n'avez pas encore donné d'avis.</p>
+        {% endif %}
+    </div>
+{% endblock %}

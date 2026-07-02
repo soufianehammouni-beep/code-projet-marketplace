@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Espace Vendeur - Marketplace{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Espace Vendeur</h1>
+    <p>Gérez vos annonces, ventes et réputation</p>
+</div>
+
+<!-- Stats vendeur -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ total_listings }}</h3>
+        <p>Annonces</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_sold }}</h3>
+        <p>Ventes</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_revenue }} €</h3>
+        <p>Revenus</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ avg_rating|default:"0" }}</h3>
+        <p>Note moyenne</p>
+    </div>
+</div>
+
+<div class="admin-grid">
+    <!-- Active Listings -->
+    <div class="dashboard-section">
+        <h2>Mes annonces actives</h2>
+        {% if active_listings %}
+            <div class="listings-grid small">
+                {% for listing in active_listings %}
+                    <div class="listing-card">
+                        <a href="{% url 'listing_detail' listing.pk %}">
+                            {% if listing.photos.first %}
+                                <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+                            {% else %}
+                                <div class="no-image">Pas de photo</div>
+                            {% endif %}
+                            <div class="listing-info">
+                                <h3>{{ listing.title }}</h3>
+                                <p class="price">{{ listing.price }} €</p>
+                                <p class="location">{{ listing.city }}</p>
+                            </div>
+                        </a>
+                        <div class="listing-actions" style="padding:0 1rem 1rem;">
+                            <a href="{% url 'listing_update' listing.pk %}" class="btn btn-small btn-secondary">Modifier</a>
+                            <a href="{% url 'mark_sold' listing.pk %}" class="btn btn-small btn-primary">Marquer vendu</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Vous n'avez pas d'annonces actives. <a href="{% url 'listing_create' %}">Publier une annonce</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Sold Listings -->
+    <div class="dashboard-section">
+        <h2>Mes ventes</h2>
+        {% if sold_listings %}
+            <div class="listings-grid small">
+                {% for listing in sold_listings %}
+                    <div class="listing-card">
+                        <a href="{% url 'listing_detail' listing.pk %}">
+                            {% if listing.photos.first %}
+                                <img src="{{ listing.photos.first.image.url }}" alt="{{ listing.title }}">
+                            {% else %}
+                                <div class="no-image">Pas de photo</div>
+                            {% endif %}
+                            <div class="listing-info">
+                                <h3>{{ listing.title }}</h3>
+                                <p class="price">{{ listing.price }} €</p>
+                                <p>Vendu à {{ listing.buyer.username|default:"Inconnu" }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Aucune vente pour le moment.</p>
+        {% endif %}
+    </div>
+
+    <!-- Conversations vendeur -->
+    <div class="dashboard-section">
+        <h2>Messages reçus</h2>
+        {% if conversations %}
+            <div class="conversations-list">
+                {% for conv in conversations %}
+                    <a href="{% url 'conversation_detail' conv.pk %}" class="conversation-item">
+                        <div class="conversation-info">
+                            {% if conv.listing.photos.first %}
+                                <img src="{{ conv.listing.photos.first.image.url }}" class="conversation-thumb" alt="">
+                            {% else %}
+                                <div class="conversation-thumb no-image"></div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ conv.listing.title }}</strong>
+                                <p class="last-message">De {{ conv.buyer.username }}</p>
+                            </div>
+                        </div>
+                        <span class="date">{{ conv.updated_at|date:"d/m/Y" }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Aucun message reçu.</p>
+        {% endif %}
+    </div>
+
+    <!-- Avis reçus -->
+    <div class="dashboard-section">
+        <h2>Avis clients</h2>
+        {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <div class="review">
+                        <div class="review-header">
+                            <strong>Par {{ review.reviewer.username }}</strong>
+                            <span class="rating">{{ review.rating }}/5</span>
+                        </div>
+                        <p>{{ review.comment }}</p>
+                        <small>{{ review.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Aucun avis reçu.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

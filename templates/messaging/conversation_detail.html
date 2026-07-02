@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversation - {{ conversation.listing.title }}{% endblock %}
+
+{% block content %}
+<div class="conversation-container">
+    <div class="conversation-header">
+        <a href="{% url 'inbox' %}" class="btn btn-small btn-secondary">← Retour</a>
+        <h1>
+            {% if conversation.buyer == user %}
+                Conversation avec {{ conversation.seller.get_full_name|default:conversation.seller.username }}
+            {% else %}
+                Conversation avec {{ conversation.buyer.get_full_name|default:conversation.buyer.username }}
+            {% endif %}
+        </h1>
+        <p class="listing-info">
+            À propos de : <a href="{% url 'listing_detail' conversation.listing.pk %}">{{ conversation.listing.title }}</a>
+            – <strong>{{ conversation.listing.price }} €</strong>
+        </p>
+    </div>
+
+    <div class="messages-list" id="messages-list">
+        {% for message in conversation.messages.all %}
+            <div class="message {% if message.sender == user %}message-sent{% else %}message-received{% endif %}">
+                <div class="message-content">
+                    <div class="message-sender-label">
+                        {% if message.sender == conversation.seller %}
+                            <span class="label-seller">🏪 Vendeur</span>
+                        {% elif message.sender == conversation.buyer %}
+                            <span class="label-buyer">🛒 Acheteur</span>
+                        {% endif %}
+                        <span class="sender-name">{{ message.sender.get_full_name|default:message.sender.username }}</span>
+                    </div>
+                    <p>{{ message.content|linebreaks }}</p>
+                    <span class="message-meta">
+                        {{ message.created_at|date:"d/m/Y H:i" }}
+                        {% if message.sender == user %}
+                            {% if message.is_read %}
+                                <span class="read-status">✓✓ Lu</span>
+                            {% else %}
+                                <span class="read-status">✓ Envoyé</span>
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+        {% empty %}
+            <div class="empty-state">
+                <p>Aucun message pour le moment.</p>
+                <p>Envoyez le premier message concernant cette annonce !</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="message-form-container">
+        <form method="post" class="message-form">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.content }}
+                {{ form.content.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to bottom of messages
+    const messagesList = document.getElementById('messages-list');
+    if (messagesList) {
+        messagesList.scrollTop = messagesList.scrollHeight;
+    }
+</script>
+{% endblock %}

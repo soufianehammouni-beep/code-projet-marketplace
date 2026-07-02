@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmer la suppression - Marketplace{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <h1>Confirmer la suppression</h1>
+    <p>Êtes-vous sûr de vouloir supprimer l'annonce "<strong>{{ listing.title }}</strong>" ? Cette action est irréversible.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+        <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}
+

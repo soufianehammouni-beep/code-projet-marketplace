@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord Admin - Marketplace{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Tableau de Bord Administrateur</h1>
+    <p>Vue d'ensemble de la plateforme</p>
+</div>
+
+<!-- Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ total_users }}</h3>
+        <p>Utilisateurs</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_listings }}</h3>
+        <p>Annonces</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_sold }}</h3>
+        <p>Ventes</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_messages }}</h3>
+        <p>Messages</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_reviews }}</h3>
+        <p>Avis</p>
+    </div>
+
+<div class="admin-grid">
+    <!-- Recent Listings -->
+    <div class="dashboard-section">
+        <h2>Annonces récentes</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Prix</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in recent_listings %}
+                <tr>
+                    <td><a href="{% url 'listing_detail' listing.pk %}">{{ listing.title }}</a></td>
+                    <td>{{ listing.price }} €</td>
+                    <td>
+                        {% if listing.status == 'active' %}
+                            <span class="badge badge-success">Disponible</span>
+                        {% elif listing.status == 'sold' %}
+                            <span class="badge badge-danger">Vendu</span>
+                        {% else %}
+                            <span class="badge badge-warning">Réservé</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ listing.created_at|date:"d/m/Y" }}</td>
+                    <td>
+                        <a href="{% url 'admin_delete_listing' listing.pk %}" class="btn btn-small btn-danger">🗑️ Supprimer</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="empty">Aucune annonce</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="dashboard-section">
+        <h2>Top Catégories</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Nb annonces</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in top_categories %}
+                <tr>
+                    <td><a href="{% url 'listing_list' %}?category={{ cat.pk }}">{{ cat.name }}</a></td>
+                    <td>{{ cat.listings_count }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="empty">Aucune catégorie</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="dashboard-section">
+        <h2>Utilisateurs récents</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Inscrit le</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in recent_users %}
+                <tr>
+                    <td><a href="{% url 'user_profile' u.username %}">{{ u.username }}</a></td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.profile.get_role_display }}</td>
+                    <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="empty">Aucun utilisateur</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Conversations -->
+    <div class="dashboard-section">
+        <h2>Conversations récentes</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Annonce</th>
+                    <th>Acheteur</th>
+                    <th>Vendeur</th>
+                    <th>Messages</th>
+                    <th>Dernière activité</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conv in recent_conversations %}
+                <tr>
+                    <td><a href="{% url 'listing_detail' conv.listing.pk %}">{{ conv.listing.title|truncatechars:30 }}</a></td>
+                    <td>{{ conv.buyer.username }}</td>
+                    <td>{{ conv.seller.username }}</td>
+                    <td>{{ conv.messages.count }}</td>
+                    <td>{{ conv.updated_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="empty">Aucune conversation</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="dashboard-section">
+        <h2>Messages récents</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Expéditeur</th>
+                    <th>Destinataire</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in recent_messages %}
+                <tr>
+                    <td>
+                        {% if msg.sender == msg.conversation.seller %}
+                            <span class="label-seller">🏪 Vendeur</span>
+                        {% elif msg.sender == msg.conversation.buyer %}
+                            <span class="label-buyer">🛒 Acheteur</span>
+                        {% endif %}
+                        <br>{{ msg.sender.username }}
+                    </td>
+                    <td>
+                        {% if msg.sender == msg.conversation.seller %}
+                            {{ msg.conversation.buyer.username }}
+                        {% else %}
+                            {{ msg.conversation.seller.username }}
+                        {% endif %}
+                    </td>
+                    <td>{{ msg.content|truncatechars:50 }}</td>
+                    <td>{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="empty">Aucun message</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
